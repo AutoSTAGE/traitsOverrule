@@ -15,6 +15,7 @@ ipch/
 *.dwl
 *.dwl2
 *.bak
+*.dwg
 x64/
 
 
