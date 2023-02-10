@@ -156,33 +156,32 @@ AsdkTraitsSamp::subWorldDraw(AcGiWorldDraw *pWd)
     if (_iIndex == 1)
         InsPoint.x += 1000.0;
 
+    /* use hidden layer with second entity */
+    AcDbObjectId layerOid = this->layerId();
+    if (_iIndex == 1)
+        layerOid = _layerOid;
+
     AcDbCircle *pCircle = new AcDbCircle();
     pCircle->setCenter(InsPoint);
     pCircle->setRadius(1000.0);
     pCircle->setColorIndex(1);
+    pCircle->setLayer(layerOid);
 
-    /* use hidden layer with first entity */
-    if (_iIndex == 0)
-        pCircle->setLayer(_layerOid);
-    else
-        pCircle->setLayer(this->layerId());
 
     AcDb::LineWeight lwObject = AcDb::kLnWt211;
     AcCmTransparency transp; transp.setAlphaPercent(50);
     Adesk::UInt16 iEntityColor = 3;
 
-    /* call THIS to overrule properties after draw() */
-    asBtrEntityOverrule(
-        pWd,
-        &lwObject,
-        transp,
-        iEntityColor
-    );
+    if (_iIndex == 1)
+        /* call THIS to overrule properties after draw() */
+        asBtrEntityOverrule(
+            pWd,
+            &lwObject,
+            transp,
+            iEntityColor
+        );
 
     pWd->rawGeometry()->draw(pCircle);
-
-    /* make sure the entity overrule is deactivated */
-    asBtrEntityOverruleOff();
 
     delete pCircle;
     pCircle = nullptr;
@@ -191,12 +190,13 @@ AsdkTraitsSamp::subWorldDraw(AcGiWorldDraw *pWd)
     pCircle2->setCenter(InsPoint);
     pCircle2->setRadius(500.0);
     pCircle2->setColorIndex(1);
-    if (_iIndex == 0)
-        pCircle2->setLayer(_layerOid);
-    else
-        pCircle2->setLayer(this->layerId());
+    pCircle2->setLayer(layerOid);
 
     pWd->rawGeometry()->draw(pCircle2);
+
+    if (_iIndex == 1)
+        /* make sure the entity overrule is deactivated */
+        asBtrEntityOverruleOff();
 
     delete pCircle2;
     pCircle2 = nullptr;

@@ -13,6 +13,7 @@ ipch/
 *.suo
 
 *.dwl
+*.dwl2
 *.bak
 x64/
 
