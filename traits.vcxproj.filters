@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="traits">
+      <UniqueIdentifier>{f760ef31-9c6c-475c-9410-47ecd76d594a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="overrule">
+      <UniqueIdentifier>{86569cef-b17c-400e-be5b-79ab8299d3b4}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="traits.cpp">
+      <Filter>traits</Filter>
+    </ClCompile>
+    <ClCompile Include="AuStEntityOverrule.cpp">
+      <Filter>overrule</Filter>
+    </ClCompile>
+    <ClCompile Include="AuStOLayer.cpp">
+      <Filter>overrule</Filter>
+    </ClCompile>
+    <ClCompile Include="AuStLayerProperty.cpp">
+      <Filter>overrule</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="AuStEntityOverrule.h">
+      <Filter>overrule</Filter>
+    </ClInclude>
+    <ClInclude Include="AuStOLayer.h">
+      <Filter>overrule</Filter>
+    </ClInclude>
+    <ClInclude Include="AuStLayerProperty.h">
+      <Filter>overrule</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
