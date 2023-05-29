@@ -14,6 +14,7 @@
 // class functions for controlling the properties of the graphics
 // primitives drawn during entity elaboration.
 
+#define AC_FULL_DEBUG
 #if defined(_DEBUG) && !defined(AC_FULL_DEBUG)
 #error _DEBUG should not be defined except in internal Adesk debug builds
 #endif
@@ -60,7 +61,7 @@ static const Adesk::UInt16 kWhite          = 7;
 static const Adesk::UInt16 kColorByLayer   = 256;
 
 
-class AsdkTraitsSamp: public AcDbCircle
+class AsdkTraitsSamp: public AcDbEntity
 {
 public:
 
@@ -72,8 +73,10 @@ public:
     int _iIndex;
 
 protected:
-    virtual Adesk::Boolean subWorldDraw(AcGiWorldDraw *);
-    Acad::ErrorStatus subTransformBy(const AcGeMatrix3d &);
+    Adesk::UInt32 subSetAttributes(AcGiDrawableTraits* pTraits) override;
+
+    Adesk::Boolean subWorldDraw(AcGiWorldDraw *) override;
+    Acad::ErrorStatus subTransformBy(const AcGeMatrix3d &) override;
 
     void asBtrEntityOverrule(
         AcGiCommonDraw *giDraw,
@@ -83,7 +86,8 @@ protected:
     );
     void AsdkTraitsSamp::asBtrEntityOverruleOff();
 
-
+    AcDbCircle m_circle1;
+    AcDbCircle m_circle2;
 };
 
 
@@ -91,12 +95,12 @@ ACRX_DXF_DEFINE_MEMBERS(AsdkTraitsSamp,AcDbEntity,
 AcDb::kDHL_CURRENT, AcDb::kMReleaseCurrent, 0,\
     ASDKTRAITSSAMP,AsdkTraits Sample);
 
-AsdkTraitsSamp::AsdkTraitsSamp() : AcDbCircle(),
+AsdkTraitsSamp::AsdkTraitsSamp() : AcDbEntity(),
     _layerOid(AcDbObjectId::kNull),
     _iIndex(0)
 {
 }
-AsdkTraitsSamp::AsdkTraitsSamp(AcDbObjectId layerOid, int iIndex) : AcDbCircle(), 
+AsdkTraitsSamp::AsdkTraitsSamp(AcDbObjectId layerOid, int iIndex) : AcDbEntity(), 
     _layerOid(layerOid),
     _iIndex(iIndex)
 {
@@ -149,6 +153,11 @@ void AsdkTraitsSamp::asBtrEntityOverruleOff()
     AuStEntityOverrule::_pEntityOverrule->Disable();
 }
 
+Adesk::UInt32 AsdkTraitsSamp::subSetAttributes(AcGiDrawableTraits* pTraits)
+{
+    return AcDbEntity::subSetAttributes(pTraits) | kDrawableIsCompoundObject;
+}
+
 Adesk::Boolean
 AsdkTraitsSamp::subWorldDraw(AcGiWorldDraw *pWd)
 {
@@ -161,12 +170,18 @@ AsdkTraitsSamp::subWorldDraw(AcGiWorldDraw *pWd)
     if (_iIndex == 1)
         layerOid = _layerOid;
 
-    AcDbCircle *pCircle = new AcDbCircle();
-    pCircle->setCenter(InsPoint);
-    pCircle->setRadius(1000.0);
-    pCircle->setColorIndex(1);
-    pCircle->setLayer(layerOid);
+    //AcDbCircle *pCircle = new AcDbCircle();
+    //pCircle->setDatabaseDefaults();
+    //pCircle->setCenter(InsPoint);
+    //pCircle->setRadius(1000.0);
+    //pCircle->setColorIndex(1);
+    //pCircle->setLayer(layerOid);
 
+    m_circle1.setDatabaseDefaults();
+    m_circle1.setCenter(InsPoint);
+    m_circle1.setRadius(1000.0);
+    m_circle1.setColorIndex(1);
+    m_circle1.setLayer(layerOid, false, true);
 
     AcDb::LineWeight lwObject = AcDb::kLnWt211;
     AcCmTransparency transp; transp.setAlphaPercent(50);
@@ -181,25 +196,35 @@ AsdkTraitsSamp::subWorldDraw(AcGiWorldDraw *pWd)
             iEntityColor
         );
 
-    pWd->rawGeometry()->draw(pCircle);
+    //pWd->rawGeometry()->draw(pCircle);
+    pWd->rawGeometry()->draw(&m_circle1);
 
-    delete pCircle;
-    pCircle = nullptr;
+    //delete pCircle;
+    //pCircle = nullptr;
 
-    AcDbCircle *pCircle2 = new AcDbCircle();
-    pCircle2->setCenter(InsPoint);
-    pCircle2->setRadius(500.0);
-    pCircle2->setColorIndex(1);
-    pCircle2->setLayer(layerOid);
+    //AcDbCircle *pCircle2 = new AcDbCircle();
+    //pCircle2->setDatabaseDefaults();
+    //pCircle2->setCenter(InsPoint);
+    //pCircle2->setRadius(500.0);
+    //pCircle2->setColorIndex(1);
+    //pCircle2->setLayer(layerOid);
 
-    pWd->rawGeometry()->draw(pCircle2);
+    //pWd->rawGeometry()->draw(pCircle2);
+
+    m_circle2.setDatabaseDefaults();
+    m_circle2.setCenter(InsPoint);
+    m_circle2.setRadius(500.0);
+    m_circle2.setColorIndex(1);
+    m_circle2.setLayer(layerOid, false, true);
+
+    pWd->rawGeometry()->draw(&m_circle2);
 
     if (_iIndex == 1)
         /* make sure the entity overrule is deactivated */
         asBtrEntityOverruleOff();
 
-    delete pCircle2;
-    pCircle2 = nullptr;
+    //delete pCircle2;
+    //pCircle2 = nullptr;
 
     return Adesk::kTrue;
 }
@@ -213,7 +238,7 @@ getLinetypeIdFromString(const TCHAR* str, AcDbObjectId& id)
 {
     Acad::ErrorStatus err;
  
-    // Get the table of currently loaded linetypes.
+    // Get the table of currently loaded line types.
     //
     AcDbLinetypeTable *pLinetypeTable;
     err = acdbHostApplicationServices()->workingDatabase()
